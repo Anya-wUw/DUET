@@ -1,105 +1,122 @@
-# 🧩 Welcome to DUAL
+# DUAL Benchmark
 
-**DUAL** (**Dual Unlearning Evaluation across Learning stages**) is a benchmark and dataset introduced in the paper  
-**_Anatomy of Forgetting: The Dual Impact of Fact Salience and Model Fine-Tuning_**.  
+**DUAL** (**D**ual **U**nlearning Ev**al**uation across Learning stages) is a benchmark and dataset introduced in the paper:
 
-It provides a systematic framework to study **how fact salience (popularity)** and **model training stage (Pretrained vs. SFT)** jointly affect the success of **Machine Unlearning** in Large Language Models (LLMs).  
+> **Anatomy of Unlearning: The Dual Impact of Fact Salience and Model Fine-Tuning**  
+> Borisiuk Anna, Andrey Savchenko, Alexander Panchenko, Elena Tutubalina  
+> *Accepted at ACL 2026 and ICLR 2026 Workshop*  
+> [[Paper]](https://arxiv.org/abs/2602.19612)
 
-The benchmark consists of **28.6k Wikidata-derived question–answer pairs**, annotated with fact popularity and organized into multiple forget/retain splits (1 %, 5 %, 10 %) for reproducible experiments.
+DUAL provides a systematic framework for studying how **fact salience (popularity)** and **model training stage** (pretrained vs. supervised fine-tuned) jointly influence the effectiveness of machine unlearning in large language models (LLMs).
+
+The benchmark comprises **28.6k Wikidata-derived question–answer pairs** annotated with fact popularity scores and organized into forget/retain splits at three scales (1%, 5%, 10%) to enable reproducible experiments.
 
 ---
 
-## ⚡ Quickstart
+## Quickstart
 
 ```bash
-# Environment setup
 conda create -n dual python=3.11
 conda activate dual
 pip install .[lm_eval]
 pip install --no-build-isolation flash-attn==2.6.3
 ```
 
-### 📦 Dataset setup
+### Dataset Setup
 
 ```bash
-# Download and prepare DUAL data
 python setup_data.py --eval
-# This populates saves/eval with logs and evaluation data
-# For available dataset variants, run:
-# python setup_data.py --help
+# Populates saves/eval with evaluation logs and data.
+# Run `python setup_data.py --help` for available dataset variants.
 ```
 
 ---
 
-## 🧠 DUAL Benchmark Structure
+## Benchmark Structure
 
-- **Rare vs. Popular facts:** grouped by real-world prominence (Wikipedia sitelinks and LLM salience scores)  
-- **Pretrained vs. SFT regimes:** same architecture evaluated under different training paradigms  
-- **Forgetting & Retention metrics:** ROUGE-L, accuracy, and composite Δ-scores  
-- **Algorithms:** GradAscent, GradDiff, NPO, and other unlearning baselines  
+| Axis | Description |
+|---|---|
+| **Fact salience** | Rare vs. popular facts, grouped by Wikipedia sitelinks and LLM-based salience scores |
+| **Training regime** | Same model architecture evaluated under pretrained and SFT conditions |
+| **Metrics** | ROUGE-L, accuracy, and composite Δ-scores for forgetting and retention |
+| **Baselines** | GradAscent, GradDiff, NPO, and additional unlearning algorithms |
 
 ---
 
-## 🔧 Scripts
+## Scripts
 
-### 🪶 Fine-tuning
-
+**Fine-tuning**
 ```bash
 bash dual/scripts/dual_finetune.sh
 ```
 
-### 🧩 Unlearning
-
+**Unlearning**
 ```bash
 bash dual/scripts/dual_unlearn.sh
 ```
 
-### 📊 Evaluation (Forgetting & Retention)
-
+**Forgetting & retention evaluation**
 ```bash
 bash dual/scripts/dual_eval_metrics.sh
 ```
 
-### 🧪 General Benchmarks (e.g., MMLU, HellaSwag)
-
+**General capability benchmarks** (MMLU, HellaSwag, etc.)
 ```bash
 bash dual/scripts/dual_llm_eval.sh
 ```
 
 ---
 
-## 📊 Example Evaluation
+## Evaluation Example
 
-Run DUAL evaluation for the **city_forget_rare_10** split:
+Running DUAL evaluation on the `city_forget_rare_10` split:
 
 ```bash
 model=gemma-7b-it
-python src/eval.py --config-name=eval.yaml experiment=eval/dual/default   model=${model}   model.model_args.pretrained_model_name_or_path=saves/finetune/dual_${model}_full   retain_logs_path=saves/eval/dual_${model}_retain/city_fast_retain_500.json   task_name=RARE_FORGET_10
+python src/eval.py \
+  --config-name=eval.yaml \
+  experiment=eval/dual/default \
+  model=${model} \
+  model.model_args.pretrained_model_name_or_path=saves/finetune/dual_${model}_full \
+  retain_logs_path=saves/eval/dual_${model}_retain/city_fast_retain_500.json \
+  task_name=RARE_FORGET_10
 ```
 
 ---
 
-## 🧑‍🔬 Baseline Experiments
-
-The following scripts reproduce baseline results for DUAL benchmark experiments:
+## Reproducing Baseline Results
 
 ```bash
 bash scripts/dual_unlearn.sh
 bash scripts/dual_eval.sh
 ```
 
-Expected metrics and plots are available in [`docs/repro.md`](docs/repro.md).
+Expected metrics and plots are documented in [`docs/repro.md`](docs/repro.md).
 
 ---
 
-## 🤝 Acknowledgements
+## Citation
 
-This benchmark builds upon the [Open-Unlearning](https://github.com/locuslab/open-unlearning) framework  
-and extends it with popularity-aware and stage-aware evaluation protocols.
+```bibtex
+@misc{anna2026anatomyunlearningdualimpact,
+  title={Anatomy of Unlearning: The Dual Impact of Fact Salience and Model Fine-Tuning},
+  author={Borisiuk Anna and Andrey Savchenko and Alexander Panchenko and Elena Tutubalina},
+  year={2026},
+  eprint={2602.19612},
+  archivePrefix={arXiv},
+  primaryClass={cs.CL},
+  url={https://arxiv.org/abs/2602.19612}
+}
+```
 
 ---
 
-## 📄 License
+## Acknowledgements
 
-This project is licensed under the MIT License.  
-See the [`LICENSE`](LICENSE) file for details.
+DUAL builds upon the [Open-Unlearning](https://github.com/locuslab/open-unlearning) framework and extends it with popularity-aware and training-stage-aware evaluation protocols.
+
+---
+
+## License
+
+This project is licensed under the MIT License. See [`LICENSE`](LICENSE) for details.
