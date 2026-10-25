@@ -1,19 +1,26 @@
-# DUAL Benchmark
+<p align="center">
+  <img src="DUET_cover.png" alt="DUET cover" width="800">
+</p>
 
-**DUAL** (**D**ual **U**nlearning Ev**al**uation across Learning stages) is a benchmark and dataset introduced in the paper:
+**DUET** is a benchmark for machine unlearning in LLMs. It comes from the paper:
 
 > **Anatomy of Unlearning: The Dual Impact of Fact Salience and Model Fine-Tuning**  
 > Borisiuk Anna, Andrey Savchenko, Alexander Panchenko, Elena Tutubalina  
-> *Accepted at ACL 2026 and ICLR 2026 Workshop*  
-> [[Paper]](https://arxiv.org/abs/2602.19612)
+> *ACL 2026 and ICLR 2026 Workshop*  
+> [[Paper]](https://arxiv.org/abs/2602.19612) | [[Hugging Face collection]](https://huggingface.co/collections/SwetieePawsss/duet-anatomy-of-unlearning)
 
-DUAL provides a systematic framework for studying how **fact salience (popularity)** and **model training stage** (pretrained vs. supervised fine-tuned) jointly influence the effectiveness of machine unlearning in large language models (LLMs).
+DUET tests how two factors affect unlearning:
 
-The benchmark comprises **28.6k Wikidata-derived question–answer pairs** annotated with fact popularity scores and organized into forget/retain splits at three scales (1%, 5%, 10%) to enable reproducible experiments.
+- **Fact popularity.** Are popular facts harder to forget than rare ones?
+- **Training stage.** Does unlearning work differently on a pretrained model and on an SFT model?
+
+The dataset has **28.6k question-answer pairs** built from Wikidata. Each fact has a popularity score. Forget and retain splits come in three sizes: 1%, 5% and 10%.
+
+Data and models are available in the [Hugging Face collection](https://huggingface.co/collections/SwetieePawsss/duet-anatomy-of-unlearning).
 
 ---
 
-## Quickstart
+## Installation
 
 ```bash
 conda create -n dual python=3.11
@@ -22,54 +29,39 @@ pip install .[lm_eval]
 pip install --no-build-isolation flash-attn==2.6.3
 ```
 
-### Dataset Setup
+### Download data
 
 ```bash
 python setup_data.py --eval
-# Populates saves/eval with evaluation logs and data.
-# Run `python setup_data.py --help` for available dataset variants.
 ```
+
+This fills `saves/eval` with data and evaluation logs. Run `python setup_data.py --help` to see all options.
 
 ---
 
-## Benchmark Structure
+## What the benchmark covers
 
 | Axis | Description |
 |---|---|
-| **Fact salience** | Rare vs. popular facts, grouped by Wikipedia sitelinks and LLM-based salience scores |
-| **Training regime** | Same model architecture evaluated under pretrained and SFT conditions |
-| **Metrics** | ROUGE-L, accuracy, and composite Δ-scores for forgetting and retention |
-| **Baselines** | GradAscent, GradDiff, NPO, and additional unlearning algorithms |
+| **Fact popularity** | Rare vs. popular facts, based on Wikipedia sitelinks and LLM-based scores |
+| **Training stage** | The same model evaluated as pretrained and after SFT |
+| **Metrics** | ROUGE-L, accuracy, and Δ-scores for forgetting and retention |
+| **Baselines** | GradAscent, GradDiff, NPO and other unlearning methods |
 
 ---
 
 ## Scripts
 
-**Fine-tuning**
-```bash
-bash dual/scripts/dual_finetune.sh
-```
-
-**Unlearning**
-```bash
-bash dual/scripts/dual_unlearn.sh
-```
-
-**Forgetting & retention evaluation**
-```bash
-bash dual/scripts/dual_eval_metrics.sh
-```
-
-**General capability benchmarks** (MMLU, HellaSwag, etc.)
-```bash
-bash dual/scripts/dual_llm_eval.sh
-```
+| Step | Command |
+|---|---|
+| Fine-tuning | `bash dual/scripts/dual_finetune.sh` |
+| Unlearning | `bash dual/scripts/dual_unlearn.sh` |
+| Forgetting and retention metrics | `bash dual/scripts/dual_eval_metrics.sh` |
+| General benchmarks (MMLU, HellaSwag, etc.) | `bash dual/scripts/dual_llm_eval.sh` |
 
 ---
 
-## Evaluation Example
-
-Running DUAL evaluation on the `city_forget_rare_10` split:
+## Example: evaluation on `city_forget_rare_10`
 
 ```bash
 model=gemma-7b-it
@@ -84,14 +76,14 @@ python src/eval.py \
 
 ---
 
-## Reproducing Baseline Results
+## Reproducing the baselines
 
 ```bash
-bash scripts/dual_unlearn.sh
-bash scripts/dual_eval.sh
+bash dual/scripts/dual_unlearn.sh
+bash dual/scripts/dual_eval_metrics.sh
 ```
 
-Expected metrics and plots are documented in [`docs/repro.md`](docs/repro.md).
+Expected metrics and plots are in [`docs/repro.md`](docs/repro.md).
 
 ---
 
@@ -113,10 +105,8 @@ Expected metrics and plots are documented in [`docs/repro.md`](docs/repro.md).
 
 ## Acknowledgements
 
-DUAL builds upon the [Open-Unlearning](https://github.com/locuslab/open-unlearning) framework and extends it with popularity-aware and training-stage-aware evaluation protocols.
-
----
+DUET is built on [Open-Unlearning](https://github.com/locuslab/open-unlearning). It adds evaluation by fact popularity and by training stage.
 
 ## License
 
-This project is licensed under the MIT License. See [`LICENSE`](LICENSE) for details.
+MIT. See [`LICENSE`](LICENSE).
